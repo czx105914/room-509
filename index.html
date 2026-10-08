@@ -305,6 +305,19 @@ button,input,textarea,select{touch-action:manipulation}
 #swipeHint{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:90;pointer-events:none;padding:9px 16px;border-radius:99px;background:#fff9f0e8;color:#76566b;font-size:12px;white-space:nowrap;box-shadow:0 5px 20px #34203633;opacity:0;transition:opacity .6s}
 #swipeHint.show{opacity:1}
 @media(min-width:701px),(orientation:landscape){#swipeHint{display:none}}
+
+/* V3.32.3 — Visitor guide note must win over overlapping OS hitboxes. */
+#guideNote{z-index:120!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer}
+@media(max-width:700px){#guideNote{min-width:104px;min-height:88px}}
+
+/* V3.32.4 — keep the private note button visible below the visitor guide.
+   Position relative to the full panoramic room, not the phone viewport. */
+#personalNoteAdd{left:13.2%!important;top:43%!important;bottom:auto!important;z-index:96!important;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;min-width:85px;min-height:32px}
+@media(max-width:700px){#personalNoteAdd{left:13.2%!important;top:43%!important;bottom:auto!important;font-size:11px!important;padding:9px 12px!important;min-height:38px}}
+
+/* V3.32.5 — pair the note button immediately beneath the yellow guide on desktop and phone. */
+#personalNoteAdd{left:13.4%!important;top:calc(23.5% + 115px)!important;bottom:auto!important;z-index:121!important}
+@media(max-width:620px){#personalNoteAdd{left:4%!important;top:calc(16% + 100px)!important;bottom:auto!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -935,7 +948,7 @@ const guideCopy={
 function setGuideLang(lang){if(lang!=='en')lang='zh';localStorage.setItem('rinaGuideLang',lang);document.querySelector('#guideContent').innerHTML=guideCopy[lang];document.querySelector('#guideZh').classList.toggle('active',lang==='zh');document.querySelector('#guideEn').classList.toggle('active',lang==='en')}
 function openGuide(){setGuideLang(localStorage.getItem('rinaGuideLang')||'zh');document.querySelector('#guideOverlay').classList.add('open');document.querySelector('#guideOverlay').setAttribute('aria-hidden','false');try{sfx.pop()}catch(e){}}
 function closeGuide(){document.querySelector('#guideOverlay').classList.remove('open');document.querySelector('#guideOverlay').setAttribute('aria-hidden','true')}
-document.querySelector('#guideNote').addEventListener('click',openGuide);document.querySelector('#guideClose').addEventListener('click',closeGuide);document.querySelector('#guideZh').addEventListener('click',()=>setGuideLang('zh'));document.querySelector('#guideEn').addEventListener('click',()=>setGuideLang('en'));document.querySelector('#guideOverlay').addEventListener('click',e=>{if(e.target.id==='guideOverlay')closeGuide()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('#guideOverlay').classList.contains('open'))closeGuide()});
+document.querySelector('#guideNote').addEventListener('click',e=>{e.stopPropagation();openGuide()});document.querySelector('#guideClose').addEventListener('click',closeGuide);document.querySelector('#guideZh').addEventListener('click',()=>setGuideLang('zh'));document.querySelector('#guideEn').addEventListener('click',()=>setGuideLang('en'));document.querySelector('#guideOverlay').addEventListener('click',e=>{if(e.target.id==='guideOverlay')closeGuide()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('#guideOverlay').classList.contains('open'))closeGuide()});
 
 
 /* V3.32 — photo prints open the existing cloud Photos app */
