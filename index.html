@@ -298,7 +298,7 @@ button,input,textarea,select{touch-action:manipulation}
  #roomPan{overflow-x:auto;overflow-y:hidden;touch-action:pan-x;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
  #roomPan::-webkit-scrollbar{display:none}
  #roomPan #world{width:max(100vw,177.7dvh);height:100dvh;min-height:100dvh;overflow:hidden}
- #roomPan #room{background-size:100% 100%;transform:none}
+ #roomPan #room{left:0!important;right:0!important;top:0!important;bottom:0!important;width:100%!important;height:100%!important;min-height:0!important;background-size:100% 100%!important;background-position:center center!important;transform:none!important}
  #roomPan #skyTint{pointer-events:none}
  #roomPan .hotspot{touch-action:pan-x}
 }
