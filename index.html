@@ -279,23 +279,51 @@ button,input,textarea,select{touch-action:manipulation}
 /* actual bed-book target: shifted right/down from the previous blanket target */
 #bookHot{z-index:37!important;left:52.0%;top:76.0%;width:10.5%;height:8.5%}
 
+
+/* V3.31.6: bedside instant camera hitbox; preserve all locked objects */
+#photoHot{left:36.5%;top:37.0%;width:7.1%;height:10.5%;z-index:40!important}
+
+/* V3.31.7 actual open book on bed; keep all confirmed hitboxes */
+#bookHot{left:52.0%;top:80.0%;width:10.5%;height:8.5%;z-index:37!important}
+
+/* V3.32: photo prints on wall, not the bedside instant camera */
+.wallPhotoHot{z-index:36!important;cursor:pointer;border-radius:4px}
+#wallPhoto1{left:26.8%;top:8.5%;width:7.1%;height:12.2%}
+#wallPhoto2{left:23.8%;top:19.2%;width:5.4%;height:12.4%}
+#wallPhoto3{left:69.8%;top:1.3%;width:4.0%;height:19.2%}
+#wallPhoto4{left:89.6%;top:3.1%;width:5.8%;height:16.0%}
+#roomPan{position:relative;width:100vw;height:100dvh;overflow:hidden}
+@media(max-width:700px) and (orientation:portrait){
+ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+ #roomPan{overflow-x:auto;overflow-y:hidden;touch-action:pan-x;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+ #roomPan::-webkit-scrollbar{display:none}
+ #roomPan #world{width:max(100vw,177.7dvh);height:100dvh;min-height:100dvh;overflow:hidden}
+ #roomPan #room{background-size:100% 100%;transform:none}
+ #roomPan #skyTint{pointer-events:none}
+ #roomPan .hotspot{touch-action:pan-x}
+}
+#swipeHint{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:90;pointer-events:none;padding:9px 16px;border-radius:99px;background:#fff9f0e8;color:#76566b;font-size:12px;white-space:nowrap;box-shadow:0 5px 20px #34203633;opacity:0;transition:opacity .6s}
+#swipeHint.show{opacity:1}
+@media(min-width:701px),(orientation:landscape){#swipeHint{display:none}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div id="world" class="day">
+<div id="roomPan"><div id="world" class="day">
  <div id="room"></div><div id="skyTint"></div><div id="wallNotesLayer" aria-label="Rina bedroom wall notes"></div>
  <button id="personalNoteAdd" type="button" aria-label="Add my private sticky note">＋ my note</button>
  <span class="star" style="left:36%;top:12%">✦</span><span class="star" style="left:52%;top:18%;animation-delay:.7s">✧</span><span class="star" style="left:61%;top:9%;animation-delay:1.1s">✦</span><i class="ambientDust" style="left:30%;top:68%;--dur:8s;--delay:0s;--drift:18px"></i><i class="ambientDust" style="left:42%;top:61%;--dur:10s;--delay:2s;--drift:30px"></i><i class="ambientDust" style="left:51%;top:72%;--dur:9s;--delay:4s;--drift:-22px"></i><i class="ambientDust" style="left:73%;top:64%;--dur:11s;--delay:1s;--drift:20px"></i><i class="ambientDust" style="left:86%;top:58%;--dur:8s;--delay:3s;--drift:-16px"></i><i class="ambientDust" style="left:57%;top:44%;--dur:12s;--delay:5s;--drift:28px"></i><span class="sleepZ">Z</span><span class="sleepZ z2">z</span><span class="sleepZ z3">z</span>
  <div id="clock"><div class="clockTime" id="clockTime"></div><div class="clockDate" id="clockDate"></div><div class="clockDate" id="roomMood"></div></div>
  <div id="screenCover"><div class="screenSleep">♡ sleeping</div></div>
  <div id="hamsterReaction"></div><div id="stitchReaction"></div><div id="pillowReaction"></div>
- <button class="hotspot" id="stitchHot" aria-label="Stitch"></button><button class="hotspot" id="pillowHot" aria-label="Pillow"></button><button class="hotspot" id="hamsterHot" aria-label="Milo"></button><button class="hotspot" id="noseHot" aria-label="Milo's nose"></button><button class="hotspot" id="computerHot" aria-label="Computer"></button><button class="hotspot" id="recordHot" aria-label="Record player"></button><button class="hotspot" id="photoHot" aria-label="Photos"></button><button class="hotspot" id="bookHot" aria-label="Book on bed"></button><button class="hotspot" id="macHot" aria-label="MacBook on bed"></button>
+ <button class="hotspot" id="stitchHot" aria-label="Stitch"></button><button class="hotspot" id="pillowHot" aria-label="Pillow"></button><button class="hotspot" id="hamsterHot" aria-label="Milo"></button><button class="hotspot" id="noseHot" aria-label="Milo's nose"></button><button class="hotspot" id="computerHot" aria-label="Computer"></button><button class="hotspot" id="recordHot" aria-label="Record player"></button><button class="hotspot" id="photoHot" aria-label="Photos"></button><button class="hotspot wallPhotoHot" id="wallPhoto1" aria-label="Open wall photo gallery"></button><button class="hotspot wallPhotoHot" id="wallPhoto2" aria-label="Open wall photo gallery"></button><button class="hotspot wallPhotoHot" id="wallPhoto3" aria-label="Open wall photo gallery"></button><button class="hotspot wallPhotoHot" id="wallPhoto4" aria-label="Open wall photo gallery"></button><button class="hotspot" id="bookHot" aria-label="Book on bed"></button><button class="hotspot" id="macHot" aria-label="MacBook on bed"></button>
 
  <button id="guideNote" aria-label="Visitor guide"><b>psst… new here?</b><small>read me ♡</small></button>
  <div class="bubble" id="characterBubble"></div><div class="toast" id="toast"></div>
 </div>
 
+</div><!-- /roomPan -->
+<div id="swipeHint" aria-hidden="true">↔ swipe to explore ♡</div>
 <div id="guideOverlay" aria-hidden="true"><div class="guidePaper" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
 <button class="guideClose" id="guideClose" aria-label="Close">×</button>
 <div class="guideTitle" id="guideTitle">Welcome to Rina’s Little Internet ♡</div>
@@ -316,9 +344,10 @@ button,input,textarea,select{touch-action:manipulation}
 const $=s=>document.querySelector(s),world=$('#world'),bubble=$('#characterBubble'),toast=$('#toast');
 /* tiny synthesized SFX — no external files needed */
 let ac;function ctx(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();return ac}function tone(freq=600,d=.08,type='sine',vol=.035,slide=0){try{const c=ctx(),o=c.createOscillator(),g=c.createGain(),t=c.currentTime;o.type=type;o.frequency.setValueAtTime(freq,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,freq+slide),t+d);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d)}catch(e){}}
+function textureBurst(duration=.13,volume=.12,highpass=700){try{const c=ctx();if(c.state==='suspended')c.resume();const n=Math.max(1,Math.floor(c.sampleRate*duration)),buf=c.createBuffer(1,n,c.sampleRate),a=buf.getChannelData(0);for(let i=0;i<n;i++){const x=i/n;a[i]=(Math.random()*2-1)*Math.pow(1-x,1.5)}const src=c.createBufferSource(),filter=c.createBiquadFilter(),gain=c.createGain();src.buffer=buf;filter.type='highpass';filter.frequency.value=highpass;gain.gain.value=volume;src.connect(filter);filter.connect(gain);gain.connect(c.destination);src.start();src.stop(c.currentTime+duration)}catch(e){}}
 const sfx={biboo(){tone(720,.07,'sine',.035,180);setTimeout(()=>tone(980,.09,'sine',.025,-80),55)},pop(){tone(520,.055,'triangle',.035,260)},spark(){tone(1100,.12,'sine',.022,300)},puff(){tone(120,.11,'triangle',.045,-60);setTimeout(()=>tone(190,.08,'sine',.018,-80),35)},click(){tone(260,.035,'square',.018,-80)},boot(){tone(440,.08,'sine',.02,220);setTimeout(()=>tone(660,.1,'sine',.018,220),90)},
-page(){tone(170,.045,'triangle',.018,60);setTimeout(()=>tone(240,.035,'triangle',.012,-30),42)},
-camera(){tone(760,.025,'square',.025,-180);setTimeout(()=>tone(180,.055,'triangle',.035,-40),55);setTimeout(()=>tone(520,.035,'square',.018,120),125)},
+page(){textureBurst(.34,.13,450);setTimeout(()=>textureBurst(.21,.085,900),125);setTimeout(()=>tone(185,.045,'triangle',.024,-65),230)},
+camera(){tone(1250,.018,'square',.075,-350);textureBurst(.035,.19,1700);setTimeout(()=>{tone(185,.07,'square',.10,-90);textureBurst(.065,.18,650)},85)},
 disc(){tone(330,.045,'sine',.018,80);setTimeout(()=>tone(494,.055,'sine',.016,80),55)}};
 function say(text,who='milo',ms=2500){bubble.textContent=text;bubble.className='bubble show '+(who==='stitch'?'stitchPos':'miloPos');clearTimeout(say.t);say.t=setTimeout(()=>bubble.classList.remove('show'),ms)}function toastMsg(text){toast.textContent=text;toast.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(()=>toast.classList.remove('show'),2100)}
 function fxAt(e,type='spark'){const n=type==='ring'?1:5;for(let i=0;i<n;i++){const f=document.createElement('span');f.className='fx '+(type==='ring'?'ring':type==='heart'?'heartFx':'sparkFx');f.textContent=type==='spark'?(Math.random()>.5?'✦':'✧'):type==='heart'?'♡':'';f.style.left=(e.clientX+(Math.random()*20-10))+'px';f.style.top=(e.clientY+(Math.random()*20-10))+'px';f.style.setProperty('--x',(Math.random()*70-35)+'px');f.style.setProperty('--y',(-20-Math.random()*55)+'px');document.body.appendChild(f);setTimeout(()=>f.remove(),1200)}}
@@ -797,7 +826,7 @@ async function renderPlaylist(){
 }
 function drawTracks(){const list=$('#trackList');if(!list)return;list.innerHTML=tracks.length?tracks.map((t,i)=>`<div class="track" data-i="${i}">${t.cover?`<img src="${t.cover}" style="width:38px;height:38px;object-fit:cover;border-radius:8px" alt="">`:`<div class="trackNum">${String(i+1).padStart(2,'0')}</div>`}<div><div class="trackTitle">${escapeHtml(t.title)}</div><div class="trackArtist">${escapeHtml(t.artist)}</div></div><button class="trackPlay">▶</button></div>`).join(''):'<div style="font-size:12px;color:#9a7684;margin:12px 0 18px">your playlist is empty... for now ♡</div>';list.querySelectorAll('.track').forEach(el=>el.onclick=()=>playTrack(+el.dataset.i))}
 function playTrack(i){if(!tracks.length)return;index=(i+tracks.length)%tracks.length;const t=tracks[index];audio.src=t.src;$('#songName').textContent=t.title;$('#artistName').textContent=t.artist;$('#miniPlayer').classList.add('show');audio.volume=+$('#volume').value;audio.play().catch(()=>{});$('#playPause').textContent='❚❚'}
-async function renderCloudPlaylistManager(editId=null){if(!ownerPreview)return;$('#winTitle').textContent='👑 Manage Playlist';$('#winBody').innerHTML='<div class="emptyState">🎧<br><br>loading playlist manager...</div>';try{const items=(await fetchCloudPlaylist(supabaseClient)).map(playlistRowToTrack),editing=items.find(x=>x.id===String(editId))||{};$('#winBody').innerHTML=`<button class="tinyBtn" id="backAdmin">← admin home</button><div class="editor"><b>${editId?'edit':'add'} song ♡</b><label>song title</label><input id="plTitle" maxlength="120" value="${escapeHtml(editing.title||'')}" placeholder="song title"><label>artist</label><input id="plArtist" maxlength="120" value="${escapeHtml(editing.artist||'')}" placeholder="artist"><div class="editorGrid"><div><label>${editId?'replace audio · optional':'audio file'}</label><input id="plAudio" type="file" accept="audio/*"></div><div><label>${editId?'replace cover · optional':'cover · optional'}</label><input id="plCover" type="file" accept="image/*"></div></div>${editing.cover?`<img class="previewThumb" id="plPreview" src="${editing.cover}" alt="current cover">`:'<img class="previewThumb" id="plPreview" alt="preview" style="display:none">'}<div class="contentActions"><button class="primaryBtn" id="savePlaylist">${editId?'save changes':'upload + publish ♡'}</button>${editId?'<button class="tinyBtn" id="cancelPlaylist">cancel</button>':''}</div><div class="fileNote" id="playlistStatus">☁️ Audio → rina-audio · cover → rina-images. Keep files reasonably small for smooth loading.</div></div><div class="contentList">${items.length?items.map((x,i)=>`<article class="contentCard"><div style="display:flex;gap:12px;align-items:center">${x.cover?`<img src="${x.cover}" style="width:58px;height:58px;object-fit:cover;border-radius:10px" alt="">`:'<div style="font-size:30px">🎵</div>'}<div><b>${escapeHtml(x.title)}</b><div class="contentMeta">${escapeHtml(x.artist)}</div></div></div><div class="contentActions"><button class="tinyBtn moveSong" data-id="${x.id}" data-dir="-1" ${i===0?'disabled':''}>↑</button><button class="tinyBtn moveSong" data-id="${x.id}" data-dir="1" ${i===items.length-1?'disabled':''}>↓</button><button class="tinyBtn editSong" data-id="${x.id}">edit</button><button class="tinyBtn deleteSong" data-id="${x.id}">delete</button></div></article>`).join(''):'<div class="emptyState">no songs yet ♡</div>'}</div>`;$('#backAdmin').onclick=renderAdmin;if($('#cancelPlaylist'))$('#cancelPlaylist').onclick=()=>renderCloudPlaylistManager();document.querySelectorAll('.editSong').forEach(b=>b.onclick=()=>renderCloudPlaylistManager(b.dataset.id));document.querySelectorAll('.deleteSong').forEach(b=>b.onclick=()=>deleteCloudSong(b.dataset.id));document.querySelectorAll('.moveSong').forEach(b=>b.onclick=()=>moveCloudSong(b.dataset.id,+b.dataset.dir));$('#plCover').onchange=e=>{const f=e.target.files[0],im=$('#plPreview');if(f){im.src=URL.createObjectURL(f);im.style.display='block'}};$('#savePlaylist').onclick=()=>saveCloudSong(editId,editing)}catch(e){$('#winBody').innerHTML=`<div class="adminWarn">Could not load Playlist — ${escapeHtml(e.message||String(e))}</div>`}}
+async function renderCloudPlaylistManager(editId=null){if(!ownerPreview)return;$('#winTitle').textContent='👑 Manage Playlist';$('#winBody').innerHTML='<div class="emptyState">🎧<br><br>loading playlist manager...</div>';try{const items=(await fetchCloudPlaylist(supabaseClient)).map(playlistRowToTrack),editing=items.find(x=>x.id===String(editId))||{};$('#winBody').innerHTML=`<button class="tinyBtn" id="backAdmin">← admin home</button><div class="editor"><b>${editId?'edit':'add'} song ♡</b><label>song title</label><input id="plTitle" maxlength="120" value="${escapeHtml(editing.title||'')}" placeholder="song title"><label>artist</label><input id="plArtist" maxlength="120" value="${escapeHtml(editing.artist||'')}" placeholder="artist"><div class="editorGrid"><div><label>${editId?'replace audio · optional':'audio file'}</label><input id="plAudio" type="file" accept=".mp3,.m4a,.aac,.wav,.ogg,.flac,audio/mpeg,audio/mp4,audio/x-m4a,audio/aac,audio/wav,audio/*"></div><div><label>${editId?'replace cover · optional':'cover · optional'}</label><input id="plCover" type="file" accept="image/*"></div></div>${editing.cover?`<img class="previewThumb" id="plPreview" src="${editing.cover}" alt="current cover">`:'<img class="previewThumb" id="plPreview" alt="preview" style="display:none">'}<div class="contentActions"><button class="primaryBtn" id="savePlaylist">${editId?'save changes':'upload + publish ♡'}</button>${editId?'<button class="tinyBtn" id="cancelPlaylist">cancel</button>':''}</div><div class="fileNote" id="playlistStatus">☁️ Audio → rina-audio · cover → rina-images. Keep files reasonably small for smooth loading.</div></div><div class="contentList">${items.length?items.map((x,i)=>`<article class="contentCard"><div style="display:flex;gap:12px;align-items:center">${x.cover?`<img src="${x.cover}" style="width:58px;height:58px;object-fit:cover;border-radius:10px" alt="">`:'<div style="font-size:30px">🎵</div>'}<div><b>${escapeHtml(x.title)}</b><div class="contentMeta">${escapeHtml(x.artist)}</div></div></div><div class="contentActions"><button class="tinyBtn moveSong" data-id="${x.id}" data-dir="-1" ${i===0?'disabled':''}>↑</button><button class="tinyBtn moveSong" data-id="${x.id}" data-dir="1" ${i===items.length-1?'disabled':''}>↓</button><button class="tinyBtn editSong" data-id="${x.id}">edit</button><button class="tinyBtn deleteSong" data-id="${x.id}">delete</button></div></article>`).join(''):'<div class="emptyState">no songs yet ♡</div>'}</div>`;$('#backAdmin').onclick=renderAdmin;if($('#cancelPlaylist'))$('#cancelPlaylist').onclick=()=>renderCloudPlaylistManager();document.querySelectorAll('.editSong').forEach(b=>b.onclick=()=>renderCloudPlaylistManager(b.dataset.id));document.querySelectorAll('.deleteSong').forEach(b=>b.onclick=()=>deleteCloudSong(b.dataset.id));document.querySelectorAll('.moveSong').forEach(b=>b.onclick=()=>moveCloudSong(b.dataset.id,+b.dataset.dir));$('#plCover').onchange=e=>{const f=e.target.files[0],im=$('#plPreview');if(f){im.src=URL.createObjectURL(f);im.style.display='block'}};$('#savePlaylist').onclick=()=>saveCloudSong(editId,editing)}catch(e){$('#winBody').innerHTML=`<div class="adminWarn">Could not load Playlist — ${escapeHtml(e.message||String(e))}</div>`}}
 async function saveCloudSong(editId,editing){const btn=$('#savePlaylist'),status=$('#playlistStatus'),title=$('#plTitle').value.trim(),artist=$('#plArtist').value.trim(),audioFile=$('#plAudio').files[0],coverFile=$('#plCover').files[0];if(!title){status.textContent='add a song title first ♡';return}if(!editId&&!audioFile){status.textContent='choose an audio file first ♡';return}if(audioFile&&audioFile.size>50*1024*1024){status.textContent='audio is over 50 MB 😭';return}if(coverFile&&coverFile.size>10*1024*1024){status.textContent='cover is over 10 MB 😭';return}btn.disabled=true;status.textContent='uploading... ☁️';let newAudio='',newCover='';try{if(audioFile)newAudio=await uploadPlaylistFile('rina-audio',audioFile,'playlist');if(coverFile)newCover=await uploadPlaylistFile('rina-images',coverFile,'playlist-covers');if(editId){const patch={title,artist};if(newAudio)patch.audio_url=newAudio;if(newCover)patch.cover_url=newCover;const {error}=await supabaseClient.from('playlist').update(patch).eq('id',editId);if(error)throw error;if(newAudio&&editing.src)await removePlaylistFile('rina-audio',editing.src);if(newCover&&editing.cover)await removePlaylistFile('rina-images',editing.cover)}else{const existing=await fetchCloudPlaylist(supabaseClient);const nextPos=existing.length?Math.max(...existing.map(x=>Number(x.position||0)))+1:0;const {error}=await supabaseClient.from('playlist').insert({title,artist,audio_url:newAudio,cover_url:newCover||null,position:nextPos});if(error)throw error}status.textContent=editId?'Saved ✓':'Published ✓';sfx.spark();setTimeout(()=>renderCloudPlaylistManager(),550)}catch(e){if(newAudio)await removePlaylistFile('rina-audio',newAudio);if(newCover)await removePlaylistFile('rina-images',newCover);status.textContent='Could not save — '+(e.message||e);btn.disabled=false}}
 async function deleteCloudSong(id){if(!confirm('delete this song from Rina\'s playlist?'))return;try{const items=(await fetchCloudPlaylist(supabaseClient)).map(playlistRowToTrack),song=items.find(x=>x.id===String(id));const {error}=await supabaseClient.from('playlist').delete().eq('id',id);if(error)throw error;if(song){await removePlaylistFile('rina-audio',song.src);await removePlaylistFile('rina-images',song.cover)}sfx.pop();renderCloudPlaylistManager()}catch(e){alert('Could not delete — '+(e.message||e))}}
 async function moveCloudSong(id,dir){try{const items=(await fetchCloudPlaylist(supabaseClient)).map(playlistRowToTrack),i=items.findIndex(x=>x.id===String(id)),j=i+dir;if(i<0||j<0||j>=items.length)return;const a=items[i],b=items[j],pa=a.position,pb=b.position;const {error:e1}=await supabaseClient.from('playlist').update({position:pb}).eq('id',a.id);if(e1)throw e1;const {error:e2}=await supabaseClient.from('playlist').update({position:pa}).eq('id',b.id);if(e2)throw e2;sfx.click();renderCloudPlaylistManager()}catch(e){alert('Could not reorder — '+(e.message||e))}}
@@ -908,5 +937,38 @@ function openGuide(){setGuideLang(localStorage.getItem('rinaGuideLang')||'zh');d
 function closeGuide(){document.querySelector('#guideOverlay').classList.remove('open');document.querySelector('#guideOverlay').setAttribute('aria-hidden','true')}
 document.querySelector('#guideNote').addEventListener('click',openGuide);document.querySelector('#guideClose').addEventListener('click',closeGuide);document.querySelector('#guideZh').addEventListener('click',()=>setGuideLang('zh'));document.querySelector('#guideEn').addEventListener('click',()=>setGuideLang('en'));document.querySelector('#guideOverlay').addEventListener('click',e=>{if(e.target.id==='guideOverlay')closeGuide()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('#guideOverlay').classList.contains('open'))closeGuide()});
 
+
+/* V3.32 — photo prints open the existing cloud Photos app */
+document.querySelectorAll('.wallPhotoHot').forEach(el=>el.addEventListener('click',e=>{
+  if(window.__rinaPanDragging)return;
+  try{sfx.camera();fxAt(e,'spark')}catch(_){}
+  const os=document.querySelector('#osOverlay');
+  if(!os.classList.contains('open'))document.querySelector('#computerHot').click();
+  // Wait until OS boot animation is ready, then open its Photos app.
+  setTimeout(()=>{try{document.querySelector('#boot')?.classList.add('hide');openApp('photos')}catch(err){console.warn('Photos launch',err)}},1100);
+}));
+/* On phones, the entire illustrated room is a scrollable panoramic canvas. */
+(function(){
+ const pan=document.querySelector('#roomPan'),hint=document.querySelector('#swipeHint');
+ if(!pan)return;
+ let touchX=0,touchY=0,dragging=false;
+ pan.addEventListener('touchstart',e=>{touchX=e.touches[0]?.clientX||0;touchY=e.touches[0]?.clientY||0;dragging=false;window.__rinaPanDragging=false},{passive:true});
+ pan.addEventListener('touchmove',e=>{if(Math.abs((e.touches[0]?.clientX||0)-touchX)>12){dragging=true;window.__rinaPanDragging=true}},{passive:true});
+ pan.addEventListener('touchend',()=>{if(dragging)setTimeout(()=>window.__rinaPanDragging=false,140)},{passive:true});
+ const mobile=()=>matchMedia('(max-width:700px) and (orientation:portrait)').matches;
+ function setup(){
+  if(!mobile())return;
+  const last=Number(sessionStorage.getItem('rinaRoomPan'));
+  pan.scrollLeft=Number.isFinite(last)&&last>0?Math.min(last,pan.scrollWidth-pan.clientWidth):(pan.scrollWidth-pan.clientWidth)/2;
+  if(!sessionStorage.getItem('rinaSwipeSeen')){
+   setTimeout(()=>hint.classList.add('show'),1700);
+   setTimeout(()=>hint.classList.remove('show'),5500);
+   sessionStorage.setItem('rinaSwipeSeen','1');
+  }
+ }
+ pan.addEventListener('scroll',()=>{if(mobile())sessionStorage.setItem('rinaRoomPan',String(pan.scrollLeft))},{passive:true});
+ window.addEventListener('load',()=>setTimeout(setup,100));
+ window.addEventListener('resize',()=>setTimeout(setup,120));
+})();
 </script>
 </body></html>
