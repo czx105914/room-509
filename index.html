@@ -555,18 +555,22 @@ button,input,textarea,select{touch-action:manipulation}
 #v342Overlay .rinaDiaryNoteActions{display:flex;gap:5px;justify-content:flex-end;margin-top:5px}
 #v342Overlay .rinaDiaryNoteActions button{padding:3px 8px;font-size:11px}
 #v342Overlay .rinaDiaryNote textarea{width:100%;min-height:65px;box-sizing:border-box}
-
-/* v3.4.6 mobile Safari targeted layout and touch fixes */
-@media (max-width:650px){
- #v342Overlay{padding:6px!important;align-items:flex-start!important;overflow:hidden!important}
- #v342Shell{width:100%!important;max-width:100%!important;max-height:calc(100dvh - 12px)!important;overflow-y:auto!important;overflow-x:hidden!important;box-sizing:border-box!important}
- #v342Stage{min-width:0!important;width:100%!important;box-sizing:border-box!important}
- .v342Book{width:100%!important;max-width:100%!important;min-height:0!important;height:auto!important;aspect-ratio:auto!important;box-sizing:border-box!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;border-width:4px!important;overflow:hidden!important}
- .v342Book .v342Page{min-width:0!important;box-sizing:border-box!important;padding:8px!important;overflow-x:hidden!important;overflow-y:auto!important;max-height:58dvh!important;overflow-wrap:anywhere!important}
- .v342Book .v342Hand{font-size:clamp(10px,2.6vw,13px)!important;line-height:1.4!important;overflow-wrap:anywhere!important}
- #v342Actions{position:sticky!important;bottom:0!important;z-index:20!important;background:#f5ebdf!important;padding:9px 4px calc(9px + env(safe-area-inset-bottom))!important;display:flex!important;justify-content:center!important}
- #v342Actions button{min-height:40px!important;touch-action:manipulation!important}
- .rinaEditSpot{touch-action:none!important;-webkit-user-select:none!important;user-select:none!important}
+/* v3.4.6.1: mobile touch drag only; do not alter desktop layout or audio */
+@media (pointer:coarse){
+ .rinaEditSpot,.personalNote{touch-action:none!important;-webkit-user-select:none;user-select:none}
+ .personalNote .personalNoteText[contenteditable="true"]{touch-action:auto!important;-webkit-user-select:text;user-select:text}
+}
+@media(max-width:650px){
+ /* Keep the original two-page book, but let its reader fit the viewport. */
+ #v342Overlay{padding:6px;box-sizing:border-box}
+ #v342Shell{width:100%;max-width:100%;max-height:calc(100dvh - 12px);padding:9px;box-sizing:border-box;overflow-x:hidden;overflow-y:auto}
+ #v342Stage{min-width:0;width:100%;box-sizing:border-box}
+ #v342Overlay .rinaDiaryReader{width:100%;min-width:0;gap:2px;box-sizing:border-box}
+ #v342Overlay .rinaDiaryReader>.v342Book{width:100%;min-width:0;max-width:100%;box-sizing:border-box;border-width:3px;aspect-ratio:auto;min-height:390px;max-height:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ #v342Overlay .rinaDiaryReader .v342Page{min-width:0;box-sizing:border-box;padding:7px;overflow-wrap:anywhere;overflow-x:hidden;overflow-y:auto;max-height:65dvh}
+ #v342Overlay .rinaDiaryReader .v342Hand{font-size:clamp(10px,2.65vw,13px);line-height:1.45;overflow-wrap:anywhere}
+ #v342Overlay .rinaDiarySide{width:25px;min-width:25px;height:38px;padding:0!important;position:relative;z-index:12;touch-action:manipulation}
+ #v342Overlay #v342Actions{position:sticky;bottom:0;z-index:30;background:#f5ebdf;padding:8px 3px calc(8px + env(safe-area-inset-bottom));box-sizing:border-box}
 }
 </style></head>
 <body>
@@ -1214,7 +1218,7 @@ async function finishPersonalEdit(el,id){
 function renderPersonalNotes(){
   wallLayer.querySelectorAll('.personalNote').forEach(x=>x.remove());
   [...personalNotes,...cloudPersonalNotes].forEach(n=>{
-    const el=document.createElement('div');el.className='wallNote personalNote';el.dataset.personalId=n.id;el.dataset.color=n.color||'yellow';el.style.left=(Number(n.x)||25)+'%';el.style.top=(Number(n.y)||40)+'%';el.style.setProperty('--rot',(Number(n.rotation)||0)+'deg');
+    const el=document.createElement('div');el.className='wallNote personalNote';el.style.touchAction='none';el.dataset.personalId=n.id;el.dataset.color=n.color||'yellow';el.style.left=(Number(n.x)||25)+'%';el.style.top=(Number(n.y)||40)+'%';el.style.setProperty('--rot',(Number(n.rotation)||0)+'deg');
     el.innerHTML=`<span class="personalSticker">${escapeHtml(n.sticker||'')}</span><div class="personalNoteText">${escapeHtml(n.content||'...')}</div><div class="personalNoteTools"><button class="personalTool personalEdit" title="edit">✎</button><button class="personalTool personalDone" title="Save note">Done ♡</button><button class="personalTool personalColor" title="color">🎨</button><button class="personalTool personalStickerBtn" title="tiny sticker">✦</button><button class="personalTool personalShare" title="Send a copy to Rina">💌</button><button class="personalTool personalDelete" title="delete">×</button></div>`;
     wallLayer.appendChild(el);
     el.querySelector('.personalEdit').onclick=e=>{e.stopPropagation();startPersonalEdit(el,n.id)};
@@ -1226,8 +1230,9 @@ function renderPersonalNotes(){
     el.addEventListener('dblclick',e=>{if(e.target.closest('button')||el.classList.contains('personalNoteEditing'))return;e.preventDefault();const st=personalStickers[Math.floor(Math.random()*personalStickers.length)];n.sticker=st;el.querySelector('.personalSticker').textContent=st;updatePersonal(n.id,{sticker:st});sfx.spark()});
     let drag=null;
     el.addEventListener('pointerdown',e=>{if(e.target.closest('button')||el.classList.contains('personalNoteEditing')||el.classList.contains('personalNoteSaving'))return;if(e.button!==0)return;const r=wallLayer.getBoundingClientRect();drag={pointer:e.pointerId,dx:e.clientX-el.getBoundingClientRect().left-el.offsetWidth/2,dy:e.clientY-el.getBoundingClientRect().top-el.offsetHeight/2,r};el.setPointerCapture(e.pointerId);el.classList.add('dragging');e.preventDefault()});
-    el.addEventListener('pointermove',e=>{if(!drag||drag.pointer!==e.pointerId)return;const r=drag.r;let x=(e.clientX-r.left-drag.dx)/r.width*100,y=(e.clientY-r.top-drag.dy)/r.height*100;x=Math.max(6,Math.min(94,x));y=Math.max(8,Math.min(92,y));el.style.left=x+'%';el.style.top=y+'%';drag.x=x;drag.y=y});
+    el.addEventListener('pointermove',e=>{if(!drag||drag.pointer!==e.pointerId)return;e.preventDefault();const r=drag.r;let x=(e.clientX-r.left-drag.dx)/r.width*100,y=(e.clientY-r.top-drag.dy)/r.height*100;x=Math.max(6,Math.min(94,x));y=Math.max(8,Math.min(92,y));el.style.left=x+'%';el.style.top=y+'%';drag.x=x;drag.y=y});
     el.addEventListener('pointerup',e=>{if(!drag||drag.pointer!==e.pointerId)return;el.classList.remove('dragging');try{el.releasePointerCapture(e.pointerId)}catch(_){}if(drag.x!=null){n.x=+drag.x.toFixed(2);n.y=+drag.y.toFixed(2);updatePersonal(n.id,{x:n.x,y:n.y})}drag=null});
+    el.addEventListener('pointercancel',e=>{if(drag&&drag.pointer===e.pointerId){el.classList.remove('dragging');drag=null}});
   });
 }
 $('#personalNoteAdd').onclick=addPersonalNote;
@@ -1271,7 +1276,7 @@ let welcomeStage='initial', welcomeAudio=null, welcomeRainNodes=[];
 const rainLayer=document.getElementById('welcomeRain');
 if(rainLayer){for(let i=0;i<68;i++){const drop=document.createElement('i');drop.style.left=(Math.random()*100)+'%';drop.style.top=(-Math.random()*110)+'%';drop.style.height=(9+Math.random()*22)+'px';drop.style.animationDuration=(.85+Math.random()*1.25)+'s';drop.style.animationDelay=(-Math.random()*3)+'s';drop.style.opacity=(.16+Math.random()*.4);rainLayer.appendChild(drop);}}
 let bgmElement=null;
-const rinaWebsiteTracks=['sounds/website_seamless.mp3'];
+const rinaWebsiteTracks=['sounds/website_seamless.ogg'];
 let rinaWebsiteTrackIndex=0;
 function rinaAdvanceWebsiteTrack(){if(!bgmElement)return;rinaWebsiteTrackIndex=(rinaWebsiteTrackIndex+1)%rinaWebsiteTracks.length;bgmElement.src=rinaWebsiteTracks[rinaWebsiteTrackIndex];bgmElement.load();if(!bgmUserPaused)bgmElement.play().catch(()=>{});}
 
@@ -1732,7 +1737,7 @@ const colors={milo:'#b7d6f2',fat:'#f1c2d5',potato:'#c5dfbc'},names={milo:'Milo',
 const sample=['🐹','🌻','🧸','🥕','🌷','🧁','💤','🍓','✨','🥔'];
 const storeKey=id=>'rinaGalleryDemo342_'+id;
 function getAlbum(id){try{return JSON.parse(localStorage.getItem(storeKey(id)))||{}}catch(e){return {}}}function setAlbum(id,obj){localStorage.setItem(storeKey(id),JSON.stringify(obj))}
-const rinaGalleryTracks=['sounds/gallery_seamless.mp3'];let rinaGalleryTrackIndex=0;
+const rinaGalleryTracks=['sounds/gallery_seamless.ogg'];let rinaGalleryTrackIndex=0;
 function rinaAdvanceGalleryTrack(){if(!galleryAudio)return;rinaGalleryTrackIndex=(rinaGalleryTrackIndex+1)%rinaGalleryTracks.length;galleryAudio.src=rinaGalleryTracks[rinaGalleryTrackIndex];galleryAudio.load();galleryAudio.play().catch(()=>{});}
 function playGalleryMusic(){try{const b=document.getElementById('bgmToggle');if(b){b.classList.add('visible');b.title='Toggle gallery music';}if(galleryAudio){galleryAudio.pause();galleryAudio=null}if(typeof bgmElement!=='undefined'&&bgmElement)bgmElement.pause();rinaGalleryTrackIndex=0;galleryAudio=new Audio(rinaGalleryTracks[0]);window.rinaGalleryMusic=galleryAudio;galleryAudio.loop=true;galleryAudio.addEventListener('ended',rinaAdvanceGalleryTrack);galleryAudio.volume=.23;if((typeof rinaPlaylistActive!=='function'||!rinaPlaylistActive())&&!bgmUserPaused)galleryAudio.play().catch(()=>{});}catch(e){console.warn('Gallery BGM unavailable',e)}}
 window.v342OpenGallery=function(){mode='gallery';show('🐹 The Little Hamster Chronicles');stage.innerHTML='<div class="v342GalleryIntro"><span class="v342GalleryStar">✧</span><h2>three little worlds</h2><p>pick a story to unfold ♡</p></div>';buttons('');playGalleryMusic();setTimeout(()=>{if(mode!=='gallery'||!vOverlay.classList.contains('on')||stage.querySelector('.rinaPickWrap'))return;stage.innerHTML='<div style="text-align:center"><h2>choose a little story ♡</h2><p>three books, three tiny worlds</p></div><div class="v342Shelf">'+Object.keys(names).map(id=>`<button class="v342Album" data-album="${id}" style="background-color:${colors[id]}">${getAlbum(id).profilePhoto?`<img class="v342CoverPhoto" src="${esc(getAlbum(id).profilePhoto)}" alt="${names[id]} portrait">`:`<span class="v342CoverPhoto">🐹</span>`}<b>${names[id]}</b><small>little memories ♡</small></button>`).join('')+'</div>';stage.querySelectorAll('[data-album]').forEach(b=>b.onclick=()=>{album=b.dataset.album;albumPage=0;mode='album';renderAlbum()})},650)};
